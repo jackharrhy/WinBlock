@@ -1,25 +1,45 @@
 object MainForm: TMainForm
-  Left = 220
+  Left = 56
   Height = 497
-  Top = 330
+  Top = 75
   Width = 962
   Caption = 'WinBlock'
   ClientHeight = 497
   ClientWidth = 962
+  Color = clRed
   LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   object Panel1: TPanel
     Left = 11
     Height = 476
     Top = 11
-    Width = 229
+    Width = 288
+    Anchors = [akTop, akLeft, akBottom]
+    Color = clWhite
+    ParentBackground = False
+    ParentColor = False
     TabOrder = 0
   end
   object Panel2: TPanel
-    Left = 768
+    Left = 672
     Height = 476
     Top = 11
-    Width = 182
+    Width = 280
+    Anchors = [akTop, akRight, akBottom]
+    Color = clWhite
+    ParentBackground = False
+    ParentColor = False
     TabOrder = 1
+  end
+  object Panel3: TPanel
+    Left = 312
+    Height = 450
+    Top = 24
+    Width = 346
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Color = clWhite
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 2
   end
 end

@@ -14,7 +14,7 @@ type
   TMainForm = class(TForm)
     Panel1: TPanel;
     Panel2: TPanel;
-    procedure Button1Click(Sender: TObject);
+    Panel3: TPanel;
     procedure FormCreate(Sender: TObject);
   private
     procedure LoadToPanel(const Dir: string);
@@ -73,11 +73,6 @@ begin
     end;
   until FindNext(SR) <> 0;
   FindClose(SR);
-end;
-
-procedure TMainForm.Button1Click(Sender: TObject);
-begin
-
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
