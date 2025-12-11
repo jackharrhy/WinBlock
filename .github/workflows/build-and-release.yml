@@ -1,0 +1,60 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Lazarus
+        uses: gcarreno/setup-lazarus@v3
+        with:
+          lazarus-version: "stable"
+          with-cache: true
+
+      - name: Build WinBlock
+        run: lazbuild WinBlock.lpi
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: WinBlock v${{ steps.version.outputs.VERSION }}
+          body: |
+            WinBlock v${{ steps.version.outputs.VERSION }}
+
+            BinBlock for Windows
+
+            ## Usage
+            1. Put images in the ./bin directory
+            1. Run WinBlock.exe
+            2. Select images from the left panel
+            3. Paint on the center grid
+            4. Copy Discord export from right panel
+          draft: false
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./WinBlock.exe
+          asset_name: WinBlock-v${{ steps.version.outputs.VERSION }}.exe
+          asset_content_type: application/octet-stream
