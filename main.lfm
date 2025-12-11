@@ -1,19 +1,25 @@
 object MainForm: TMainForm
-  Left = 493
-  Height = 379
-  Top = 317
-  Width = 486
+  Left = 220
+  Height = 497
+  Top = 330
+  Width = 962
   Caption = 'WinBlock'
-  ClientHeight = 379
-  ClientWidth = 486
+  ClientHeight = 497
+  ClientWidth = 962
   LCLVersion = '4.4.0.0'
-  object Button1: TButton
-    Left = 8
-    Height = 25
-    Top = 8
-    Width = 75
-    Caption = 'WinBlock'
+  OnCreate = FormCreate
+  object Panel1: TPanel
+    Left = 11
+    Height = 476
+    Top = 11
+    Width = 229
     TabOrder = 0
-    OnClick = Button1Click
+  end
+  object Panel2: TPanel
+    Left = 768
+    Height = 476
+    Top = 11
+    Width = 182
+    TabOrder = 1
   end
 end
