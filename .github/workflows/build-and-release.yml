@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-release:
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -27,14 +29,12 @@ jobs:
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Create Release and Upload Asset
+        uses: elgohr/Github-Release-Action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: WinBlock v${{ steps.version.outputs.VERSION }}
+          title: WinBlock v${{ steps.version.outputs.VERSION }}
           body: |
             WinBlock v${{ steps.version.outputs.VERSION }}
 
@@ -45,16 +45,8 @@ jobs:
             1. Run WinBlock.exe
             2. Select images from the left panel
             3. Paint on the center grid
-            4. Copy Discord export from right panel
-          draft: false
+            4. Copy Discord export from the right panel
+          files: ./WinBlock.exe
+          name: WinBlock-v${{ steps.version.outputs.VERSION }}.exe
           prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./WinBlock.exe
-          asset_name: WinBlock-v${{ steps.version.outputs.VERSION }}.exe
-          asset_content_type: application/octet-stream
+          tag: ${{ github.ref_name }}
