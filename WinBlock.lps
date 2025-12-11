@@ -9,8 +9,8 @@
         <Filename Value="WinBlock.lpr"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="1"/>
-        <CursorPos X="21" Y="15"/>
-        <UsageCount Value="36"/>
+        <CursorPos Y="15"/>
+        <UsageCount Value="37"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -21,9 +21,9 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Main"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="146"/>
-        <CursorPos X="9" Y="166"/>
-        <UsageCount Value="36"/>
+        <TopLine Value="223"/>
+        <CursorPos X="17" Y="236"/>
+        <UsageCount Value="37"/>
         <Loaded Value="True"/>
       </Unit>
     </Units>
