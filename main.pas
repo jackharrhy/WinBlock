@@ -5,7 +5,7 @@ unit Main;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls, StdCtrls;
 
 type
 
@@ -18,14 +18,19 @@ type
     procedure FormCreate(Sender: TObject);
   private
     SelectedImage: TPicture;
+    SelectedImageIndex: Integer;
     GridState: array[0..15, 0..15] of Integer;
     GridImages: array[0..15, 0..15] of TImage;
     PaletteImages: TList;
+    PaletteFilenames: TStringList;
     SelectedShape: TShape;
+    ExportMemo: TMemo;
     procedure LoadToPanel(const Dir: string);
     procedure CreateGrid;
+    procedure CreateExportUI;
     procedure PaletteImageClick(Sender: TObject);
     procedure GridImageClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure UpdateExportText;
   public
 
   end;
@@ -69,6 +74,7 @@ begin
         Img.Height := 32;
         Img.OnClick := @PaletteImageClick;
         PaletteImages.Add(Img);
+        PaletteFilenames.Add(ChangeFileExt(SR.Name, ''));
         
         Inc(Col);
         if Col >= ImagesPerRow then
@@ -111,23 +117,53 @@ begin
     end;
 end;
 
+procedure TMainForm.CreateExportUI;
+begin
+  ExportMemo := TMemo.Create(Panel2);
+  ExportMemo.Parent := Panel2;
+  ExportMemo.Left := 10;
+  ExportMemo.Top := 10;
+  ExportMemo.Width := Panel2.Width - 20;
+  ExportMemo.Height := Panel2.Height - 20;
+  ExportMemo.ScrollBars := ssVertical;
+  ExportMemo.WordWrap := False;
+  ExportMemo.ReadOnly := True;
+  ExportMemo.Text := 'Discord export will appear here...';
+end;
+
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   PaletteImages := TList.Create;
+  PaletteFilenames := TStringList.Create;
   SelectedImage := nil;
+  SelectedImageIndex := -1;
   SelectedShape := nil;
   LoadToPanel('.\bin');
   CreateGrid;
+  CreateExportUI;
 end;
 
 procedure TMainForm.PaletteImageClick(Sender: TObject);
 var
   Img: TImage;
+  I: Integer;
 begin
   if Sender is TImage then
   begin
+    if Assigned(SelectedImage) then
+      SelectedImage.Free;
+      
     SelectedImage := TPicture.Create;
     SelectedImage.Assign(TImage(Sender).Picture);
+    
+    for I := 0 to PaletteImages.Count - 1 do
+    begin
+      if TImage(PaletteImages[I]) = Sender then
+      begin
+        SelectedImageIndex := I;
+        Break;
+      end;
+    end;
     
     if Assigned(SelectedShape) then
       SelectedShape.Free;
@@ -167,16 +203,49 @@ begin
         if Assigned(SelectedImage) then
         begin
           Img.Picture.Assign(SelectedImage);
-          GridState[Col, Row] := 1;
+          GridState[Col, Row] := SelectedImageIndex;
+          UpdateExportText;
         end;
       end
       else if Button = mbRight then
       begin
         Img.Picture.Bitmap := nil;
         GridState[Col, Row] := -1;
+        UpdateExportText;
       end;
     end;
   end;
+end;
+
+procedure TMainForm.UpdateExportText;
+var
+  Row, Col: Integer;
+  ExportText: string;
+  CellValue: Integer;
+begin
+  ExportText := '';
+  
+  for Row := 0 to 15 do
+  begin
+    for Col := 0 to 15 do
+    begin
+      CellValue := GridState[Col, Row];
+      if CellValue >= 0 then
+      begin
+        if (CellValue < PaletteFilenames.Count) then
+          ExportText := ExportText + ':' + PaletteFilenames[CellValue] + ':'
+        else
+          ExportText := ExportText + ':unknown:';
+      end;
+    end;
+    if Row < 15 then
+      ExportText := ExportText + #13#10;
+  end;
+  
+  if ExportText = '' then
+    ExportText := 'Discord export will appear here...'
+  else
+    ExportMemo.Text := ExportText;
 end;
 
 end.
