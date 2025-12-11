@@ -26,7 +26,14 @@ jobs:
 
       - name: Extract version from tag
         id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $env:GITHUB_OUTPUT
+        run: |
+          $version = $env:GITHUB_REF -replace 'refs/tags/v', ''
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Rename executable with version
+        run: |
+          Move-Item -Path "WinBlock.exe" -Destination "WinBlock-v${{ steps.version.outputs.VERSION }}.exe"
         shell: pwsh
 
       - name: Create Release and Upload Asset
@@ -42,11 +49,10 @@ jobs:
 
             ## Usage
             1. Put images in the ./bin directory
-            1. Run WinBlock.exe
-            2. Select images from the left panel
-            3. Paint on the center grid
-            4. Copy Discord export from the right panel
-          files: ./WinBlock.exe
-          name: WinBlock-v${{ steps.version.outputs.VERSION }}.exe
+            2. Run WinBlock.exe
+            3. Select images from the left panel
+            4. Paint on the center grid
+            5. Copy Discord export from the right panel
+          files: ./WinBlock-v${{ steps.version.outputs.VERSION }}.exe
           prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
           tag: ${{ github.ref_name }}
