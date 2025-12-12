@@ -25,6 +25,7 @@ type
     PaletteFilenames: TStringList;
     SelectedShape: TShape;
     ExportMemo: TMemo;
+    GridBackground: TImage;
     procedure LoadToPanel(const Dir: string);
     procedure CreateGrid;
     procedure CreateExportUI;
@@ -96,9 +97,46 @@ var
   Col, Row: Integer;
   CellSize: Integer;
   Img: TImage;
+  GridBitmap: TBitmap;
 begin
   CellSize := Panel3.Width div 16;
   
+  // Create grid background image
+  GridBackground := TImage.Create(Panel3);
+  GridBackground.Parent := Panel3;
+  GridBackground.Left := 0;
+  GridBackground.Top := 0;
+  GridBackground.Width := Panel3.Width;
+  GridBackground.Height := Panel3.Height;
+  GridBackground.Stretch := False;
+  GridBackground.SendToBack;
+  
+  // Draw grid on background
+  GridBitmap := TBitmap.Create;
+  GridBitmap.SetSize(Panel3.Width, Panel3.Height);
+  GridBitmap.Canvas.Brush.Color := clWhite;
+  GridBitmap.Canvas.FillRect(0, 0, GridBitmap.Width, GridBitmap.Height);
+  GridBitmap.Canvas.Pen.Color := clGray;
+  GridBitmap.Canvas.Pen.Width := 1;
+  
+  // Vertical lines
+  for Col := 0 to 16 do
+  begin
+    GridBitmap.Canvas.MoveTo(Col * CellSize, 0);
+    GridBitmap.Canvas.LineTo(Col * CellSize, Panel3.Height);
+  end;
+  
+  // Horizontal lines
+  for Row := 0 to 16 do
+  begin
+    GridBitmap.Canvas.MoveTo(0, Row * CellSize);
+    GridBitmap.Canvas.LineTo(Panel3.Width, Row * CellSize);
+  end;
+  
+  GridBackground.Picture.Assign(GridBitmap);
+  GridBitmap.Free;
+  
+  // Create transparent grid cells
   for Row := 0 to 15 do
     for Col := 0 to 15 do
     begin
@@ -110,6 +148,8 @@ begin
       Img.Height := CellSize;
       Img.Stretch := True;
       Img.Picture.Bitmap := nil;
+      Img.Transparent := True;
+      
       GridImages[Col, Row] := Img;
       GridState[Col, Row] := -1;
       
@@ -222,12 +262,43 @@ var
   Row, Col: Integer;
   ExportText: string;
   CellValue: Integer;
+  MinCol, MaxCol, MinRow, MaxRow: Integer;
+  HasContent: Boolean;
 begin
-  ExportText := '';
+  // Find the bounds of the painted area
+  MinCol := 15;
+  MaxCol := 0;
+  MinRow := 15;
+  MaxRow := 0;
+  HasContent := False;
   
   for Row := 0 to 15 do
   begin
     for Col := 0 to 15 do
+    begin
+      if GridState[Col, Row] >= 0 then
+      begin
+        HasContent := True;
+        if Col < MinCol then MinCol := Col;
+        if Col > MaxCol then MaxCol := Col;
+        if Row < MinRow then MinRow := Row;
+        if Row > MaxRow then MaxRow := Row;
+      end;
+    end;
+  end;
+  
+  if not HasContent then
+  begin
+    ExportMemo.Text := 'Discord export will appear here...';
+    Exit;
+  end;
+  
+  ExportText := '';
+  
+  // Export only the shrinkwrapped area
+  for Row := MinRow to MaxRow do
+  begin
+    for Col := MinCol to MaxCol do
     begin
       CellValue := GridState[Col, Row];
       if CellValue >= 0 then
@@ -236,16 +307,17 @@ begin
           ExportText := ExportText + ':' + PaletteFilenames[CellValue] + ':'
         else
           ExportText := ExportText + ':unknown:';
+      end
+      else
+      begin
+        ExportText := ExportText + ':00:';
       end;
     end;
-    if Row < 15 then
+    if Row < MaxRow then
       ExportText := ExportText + #13#10;
   end;
   
-  if ExportText = '' then
-    ExportText := 'Discord export will appear here...'
-  else
-    ExportMemo.Text := ExportText;
+  ExportMemo.Text := ExportText;
 end;
 
 end.
