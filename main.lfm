@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 621
+  Left = 366
   Height = 497
-  Top = 141
+  Top = 263
   Width = 962
   Caption = 'WinBlock'
   ClientHeight = 497
@@ -10,9 +10,9 @@ object MainForm: TMainForm
   LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   object Panel1: TPanel
-    Left = 11
-    Height = 476
-    Top = 11
+    Left = 8
+    Height = 480
+    Top = 8
     Width = 288
     Anchors = [akTop, akLeft, akBottom]
     Color = clWhite
@@ -22,14 +22,28 @@ object MainForm: TMainForm
   end
   object Panel2: TPanel
     Left = 672
-    Height = 476
-    Top = 11
+    Height = 480
+    Top = 8
     Width = 280
     Anchors = [akTop, akRight, akBottom]
+    ClientHeight = 480
+    ClientWidth = 280
     Color = clWhite
     ParentBackground = False
     ParentColor = False
     TabOrder = 1
+    object ExportMemo: TMemo
+      Left = 8
+      Height = 464
+      Top = 8
+      Width = 264
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      Lines.Strings = (
+        'ExportMemo'
+      )
+      ReadOnly = True
+      TabOrder = 0
+    end
   end
   object Panel3: TPanel
     Left = 320
